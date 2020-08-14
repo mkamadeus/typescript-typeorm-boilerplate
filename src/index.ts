@@ -8,13 +8,13 @@ import dotenv from "dotenv";
 import { createConnection } from "typeorm";
 
 import routes from "./routes";
+dotenv.config();
 
 createConnection()
   .then(async (_conn) => {
     const app = express();
 
     // Use libraries middleware
-    dotenv.config();
     app.use(cors());
     app.use(helmet());
     app.use(bodyParser.json());

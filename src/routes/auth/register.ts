@@ -5,7 +5,11 @@ import bcrypt from "bcryptjs";
 
 const router = Router();
 
-type RegistrationData = { name: string; email: string; password: string };
+type RegistrationData = {
+  name: string;
+  email: string;
+  password: string;
+};
 
 router.post("/", async (req, res) => {
   const { name, email, password }: RegistrationData = req.body;
