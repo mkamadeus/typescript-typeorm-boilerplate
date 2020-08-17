@@ -7,6 +7,7 @@ import token from "./token";
 
 const router = Router();
 
+router.use("/register", register);
 router.use("/user", user);
 router.use("/login", login);
 router.use("/token", token);

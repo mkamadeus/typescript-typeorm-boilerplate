@@ -1,0 +1,197 @@
+openapi: 3.0.0
+info:
+  title: Typescript-TypeORM Boilerplate
+  description: This is an opionated Typescript with TypeORM REST API boilerplate with user authentication.
+  version: 0.1.0
+
+components:
+  schemas:
+    RegisterBody:
+      properties:
+        email:
+          type: string
+        name:
+          type: string
+        password:
+          type: string
+    LoginBody:
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    TokenBody:
+      properties:
+        refreshToken:
+          type: string
+    RegisterResponse:
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        userData:
+          properties:
+            name:
+              type: string
+            email:
+              type: string
+    LoginResponse:
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+    UserResponse:
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: array
+    TokenResponse:
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        accessToken:
+          type: string
+
+servers:
+  - url: http://localhost:3000/
+    description: Your endpoints are bashed here.
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Authentication & User
+      summary: Registers a new user.
+      description: This will register a new user; accepting email, name, and password. Email must be unique.
+      requestBody:
+        description: All fields are required, if not the registration will fail.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterBody"
+            example:
+              email: johndoe@gmail.com
+              name: John Doe
+              password: password
+      responses:
+        "200":
+          description: A user is successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegisterResponse"
+              example:
+                success: true
+                message: User successfully registered
+                userData:
+                  name: John Doe
+                  email: johndoe@gmail.com
+        "400":
+          description: An email has been registered before.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegisterResponse"
+              example:
+                success: false
+                message: Email already registered
+  /auth/login:
+    post:
+      tags:
+        - Authentication & User
+      summary: Attempts a user login.
+      description: This will attempt a login using the given credentials.
+      requestBody:
+        description: All fields are required, otherwise login will fail.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+            example:
+              email: johndoe@gmail.com
+              password: password
+      responses:
+        "200":
+          description: Login is successful, returning current access token and saves the refresh token to the database.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+              example:
+                success: false
+                message: Login successful
+                accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpvaGRvZUBnbWFpbC5jb20iLCJpYXQiOjE1OTc2NzE0MDQsImV4cCI6MTU5NzY3MTQ2NH0.xyvLoxBV4u-KqNMUY2wf-P3JYCLgQItTKxM-hcrF39Y
+                refreshToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpvaGRvZUBnbWFpbC5jb20iLCJpYXQiOjE1OTc2NzE0MDQsImV4cCI6MTU5NzY3MTQ2NH0.paZODGNbVzAdNrsuhzRbkMCYXpYC32g3fjJ-XMeUkcY
+        "400":
+          description: User not registered or invalid password is being given.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+              example:
+                success: false
+                message: Incorrect password
+  /auth/user:
+    get:
+      tags:
+        - Authentication & User
+      summary: Fetch all registered users.
+      description: This will return an array of registered user with their id, name, and email.
+      responses:
+        "200":
+          description: Successfully fetched user list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+              example:
+                success: true
+                message: User fetching successful
+                data:
+                  - id: 4
+                    name: "Peter Parker 2"
+                    email: "peter.parker2@gmail.com"
+                  - id: 5
+                    name: Joni
+                    email: "joni@gmail.com"
+                  - id: 6
+                    name: John Doe
+                    email: "johndoe@gmail.com"
+  /auth/token:
+    post:
+      tags:
+        - Authentication & User
+      summary: Generates an access token for authentication.
+      description: Generates an access token from provided refresh token from the client (usually stored in local storage or cookies)
+      requestBody:
+        description: Give the refresh token to the body.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TokenBody"
+            example:
+              refreshToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpvaGRvZUBnbWFpbC5jb20iLCJpYXQiOjE1OTc2NzE0MDQsImV4cCI6MTU5NzY3MTQ2NH0.paZODGNbVzAdNrsuhzRbkMCYXpYC32g3fjJ-XMeUkcY
+      responses:
+        "200":
+          description: New access token successfully generated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenResponse"
+              example:
+                success: true,
+                message: Access token generated
+                accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpvaGRvZUBnbWFpbC5jb20iLCJpYXQiOjE1OTc2Nzg2MTksImV4cCI6MTU5NzY3ODY3OX0._SjVokKIef0IpvO1-PBxd2PGnfv-2TeYcTuUC9OyZ7E
