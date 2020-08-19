@@ -1,7 +1,5 @@
 import { RequestHandler } from "express";
 import * as jwt from "jsonwebtoken";
-import { getConnection } from "typeorm";
-import User from "../entities/User";
 
 export const authenticateToken: RequestHandler = async (req, res, next) => {
   const authHeader = req.headers["authorization"];

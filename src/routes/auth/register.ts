@@ -18,7 +18,7 @@ router.post("/", async (req, res) => {
       throw new Error("Invalid body");
     }
 
-    const isUserAvailable = await getConnection()
+    const isUserAvailable = await getConnection(process.env.NODE_ENV!)
       .manager.findOne(User, { where: { email } })
       .then((response) => {
         return response ? false : true;
@@ -30,12 +30,12 @@ router.post("/", async (req, res) => {
 
     const hashedPassword: string = await bcrypt.hash(password, 10);
 
-    const user = getConnection().manager.create(User, {
+    const user = getConnection(process.env.NODE_ENV!).manager.create(User, {
       name,
       email,
       password: hashedPassword,
     });
-    await getConnection().manager.save(user);
+    await getConnection(process.env.NODE_ENV!).manager.save(user);
 
     return res.json({
       success: true,

@@ -17,9 +17,12 @@ router.post("/", async (req, res) => {
       throw new Error("Invalid body");
     }
 
-    const user = await getConnection().manager.findOne(User, {
-      where: { refreshToken },
-    });
+    const user = await getConnection(process.env.NODE_ENV!).manager.findOne(
+      User,
+      {
+        where: { refreshToken },
+      }
+    );
 
     if (!user) {
       res.sendStatus(403);

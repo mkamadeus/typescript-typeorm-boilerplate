@@ -5,7 +5,7 @@ import User from "../../entities/User";
 const router = Router();
 
 router.get("/", async (req, res) => {
-  await getConnection()
+  await getConnection(process.env.NODE_ENV!)
     .manager.find(User)
     .then((data) => {
       return res.json({

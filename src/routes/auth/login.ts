@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getConnection, getManager } from "typeorm";
+import { getConnection } from "typeorm";
 import * as jwt from "jsonwebtoken";
 import bcyrpt from "bcryptjs";
 import User from "../../entities/User";
@@ -18,10 +18,12 @@ router.post("/", async (req, res) => {
       throw new Error("Invalid body");
     }
 
-    const manager = getManager();
-    const user = await manager.findOne(User, {
-      where: { email },
-    });
+    const user = await getConnection(process.env.NODE_ENV!).manager.findOne(
+      User,
+      {
+        where: { email },
+      }
+    );
 
     if (!user) {
       throw new Error("User is not registered");
@@ -42,7 +44,7 @@ router.post("/", async (req, res) => {
       expiresIn: "60s",
     });
 
-    await getConnection()
+    await getConnection(process.env.NODE_ENV!)
       .createQueryBuilder()
       .update(User)
       .set({ refreshToken })
