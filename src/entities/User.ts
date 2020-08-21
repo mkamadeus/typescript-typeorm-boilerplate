@@ -22,7 +22,7 @@ export default class User extends BaseEntity {
   password: string;
 
   @Column({ nullable: true })
-  refreshToken: string;
+  refreshToken: string | null;
 
   @CreateDateColumn()
   createdAt: Date;

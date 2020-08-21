@@ -4,7 +4,6 @@ import { authenticateToken } from "../../middlewares/checkAuth";
 const router = Router();
 
 router.get("/", authenticateToken, (req, res) => {
-  console.log(req.user);
   return res.json({
     success: true,
     message: "User is logged in",

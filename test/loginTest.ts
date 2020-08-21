@@ -3,14 +3,16 @@ import { createConnection, Connection } from "typeorm";
 import chai from "chai";
 import chaiHttp from "chai-http";
 import User from "../src/entities/User";
+import { access } from "fs";
 
 chai.should();
 chai.use(chaiHttp);
 
-describe("Registration testing", () => {
+describe("Login testing", () => {
   let dbConnection: Connection;
+  let accessToken: string;
 
-  before(async () => {
+  before(() => {
     return createConnection(process.env.NODE_ENV!)
       .then((connection) => {
         dbConnection = connection;
@@ -20,22 +22,6 @@ describe("Registration testing", () => {
         console.log(err);
       });
     // done();
-  });
-
-  describe("Get all users", () => {
-    it("The user table should be empty", (done) => {
-      chai
-        .request("http://localhost:3000")
-        .get("/auth/user")
-        .end((err, res) => {
-          if (err) done(err);
-
-          res.should.have.status(200);
-          res.body.data.length.should.be.eql(0);
-
-          done();
-        });
-    });
   });
 
   describe("Register a new user", () => {
@@ -61,37 +47,51 @@ describe("Registration testing", () => {
     });
   });
 
-  describe("Get all users", () => {
-    it("The user table should have one user", (done) => {
+  describe("Login using invalid credentials with the new user", () => {
+    it("Login should fail", (done) => {
       chai
         .request("http://localhost:3000")
-        .get("/auth/user")
+        .post("/auth/login")
+        .type("json")
+        .send({ email: "john@doe.com", password: "invalidpassword" })
         .end((err, res) => {
           if (err) done(err);
 
-          res.should.have.status(200);
-          res.body.data.length.should.be.eql(1);
-
+          res.should.have.status(400);
           done();
         });
     });
   });
 
-  describe("Register an already registered user", () => {
-    it("Registration should fail", (done) => {
+  describe("Login using valid credentials with the new user", () => {
+    it("Login should fail", (done) => {
       chai
         .request("http://localhost:3000")
-        .post("/auth/register")
+        .post("/auth/login")
         .type("json")
-        .send({
-          email: "john@doe.com",
-          name: "John Doe",
-          password: "password",
-        })
+        .send({ email: "john@doe.com", password: "password" })
         .end((err, res) => {
           if (err) done(err);
 
-          res.should.have.status(400);
+          res.should.have.status(200);
+          accessToken = res.body.accessToken;
+          done();
+        });
+    });
+  });
+
+  describe("Get login status using access token", () => {
+    it("User should be logged in", (done) => {
+      chai
+        .request("http://localhost:3000")
+        .get("/auth/status")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .end((err, res) => {
+          if (err) done(err);
+
+          res.should.have.status(200);
+          res.body.success.should.be.eql(true);
+          res.body.user.email.should.be.eql("john@doe.com");
 
           done();
         });
